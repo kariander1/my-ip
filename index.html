@@ -12,11 +12,17 @@
 </head>
 <body>
 <div id="ip">…</div>
+<small id="when" style="position:fixed;bottom:1rem;font-size:.9rem;opacity:.5"></small>
 <script>
-  fetch("https://api.ipify.org?format=json")
-    .then(r => r.json())
-    .then(d => { document.getElementById("ip").textContent = d.ip; })
-    .catch(() => { document.getElementById("ip").textContent = "couldn't fetch IP"; });
+  // ip.txt is written by update-ip.ps1 on the home PC: line 1 = IP, line 2 = when it changed (UTC)
+  fetch("ip.txt?" + Date.now(), { cache: "no-store" })
+    .then(r => { if (!r.ok) throw 0; return r.text(); })
+    .then(t => {
+      const [ip, when] = t.trim().split("\n");
+      document.getElementById("ip").textContent = ip;
+      if (when) document.getElementById("when").textContent = "since " + new Date(when).toLocaleString();
+    })
+    .catch(() => { document.getElementById("ip").textContent = "not published yet"; });
 </script>
 </body>
 </html>
